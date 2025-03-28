@@ -7,6 +7,7 @@ from datetime import datetime
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+from textblob import TextBlob
 
 #Download nltk resouces only once
 nltk.download('punkt')
@@ -15,39 +16,84 @@ nltk.download('stopwords')
 def clean_stock_data(file_path, output_path = None):
     print(f"Cleaning stock data from {file_path}")
     
-    df = pd.read_csv(file_path, index_col = 0, parse_dates = True)
-    
-    missing_values = df.isnull().sum().sum()
-    if missing_values > 0:
-        print(f"Found {missing_values} missing values")
+    try:
+        with open(file_path, 'r') as f:
+            first_lines = [next(f) for _ in range(5)]
+        print(f"First few lines of the file:\n{''.join(first_lines)}")
         
-        #Forward fill missing values with previous days data
-        df.fillna(method = 'ffill', inplace = True)
-
-        #Fill any missing values at the beginning using backward fill
-        df.fillna(method = 'bfill', inplace = True)
-        
-    #Daily returns
-    df['Daily_Return'] = df['Adj Close'].pct_change()
-        
-    #Handling outliers in daily returns using IQR method to find extreme price movements
-    Q1 = df['Daily_Return'].quantile(.25)
-    Q3 = df['Daily_Return'].quantile(.75)
-    IQR = Q3 - Q1
-        
-    #Flag the outliers
-    lower_bound = Q1 - 3 * IQR
-    upper_bound = Q3 + 3 * IQR
-    df['Return_Outlier'] = ((df['Daily_Return'] < lower_bound) |
-                            (df['Daily_Return'] > upper_bound))
-        
-    #Save clean data to ouput path
-    if output_path:
-        os.makedirs(os.path.dirname(output_path), exist_ok = True)
-        df.to_csv(output_path)
-        print(f"Saved cleaned stock data to {output_path}")
+        try:
+            df = pd.read_csv(file_path, index_col = 0, parse_dates = True)
             
-    return df
+            if "Ticker" in df.index:
+                print("Found Ticker")
+                
+                df = pd.read_csv(file_path, skiprows = 1, index_col = 0, parse_dates = True)
+        except Exception as e:
+            print(f"Standard loading failed")
+            df = pd.read_csv(file_path, skiprows = [1,2], index_col = 0, parse_dates= True)
+        
+        print(f"Columns: {df.columns.tolist()}")
+        print(f"Data types: {df.dtypes}")
+        
+        # Convert all numeric columns to float
+        for col in df.columns:
+            try:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+            except Exception as e:
+                print(f"Could not convert column {col} to numeric: {str(e)}")      
+                
+        print(f"Data types after conversion: {df.dtypes}")
+        
+        missing_values = df.isnull().sum().sum()
+        if missing_values > 0:
+            print(f"Found {missing_values} missing values")
+            
+            #Forward fill missing values with previous days data
+            df.fillna(method = 'ffill', inplace = True)
+
+            #Fill any missing values at the beginning using backward fill
+            df.fillna(method = 'bfill', inplace = True)
+        
+        if 'Adj Close' in df.columns and pd.api.types.is_numeric_dtype(df['Adj Close']):
+            df['Daily_Return'] = df['Adj Close'].pct_change()
+        elif 'Close' in df.columns and pd.api.types.is_numeric_dtype(df['Close']):
+            print("Using 'Close' insted of 'Adj Close'")
+            df['Daily_Return'] = df['Close'].pct_change()
+        else:
+            print("Neither columns available")
+            df['Daily_Return'] = 0  
+
+        #Handling outliers in daily returns using IQR method to find extreme price movements
+        Q1 = df['Daily_Return'].quantile(.25)
+        Q3 = df['Daily_Return'].quantile(.75)
+        IQR = Q3 - Q1
+            
+        #Flag the outliers
+        lower_bound = Q1 - 3 * IQR
+        upper_bound = Q3 + 3 * IQR
+        df['Return_Outlier'] = ((df['Daily_Return'] < lower_bound) |
+                                (df['Daily_Return'] > upper_bound))
+            
+        #Save clean data to ouput path
+        if output_path:
+            os.makedirs(os.path.dirname(output_path), exist_ok = True)
+            df.to_csv(output_path)
+            print(f"Saved cleaned stock data to {output_path}")
+                
+        return df
+
+    except Exception as e:
+        print(f"Error in clean_stock_data: {str(e)}")
+        
+        df = pd.DataFrame(columns=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume', 'Daily_Return', 'Return_Outlier'])
+        
+        if output_path:
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            df.to_csv(output_path)
+            print(f"Saved empty dataframe to {output_path}")
+        
+        return df
+            
 
 def clean_text(text):
     
@@ -72,21 +118,30 @@ def clean_text(text):
     return cleaned_text
 
 def analyze_sentiment(text):
-    positive_words = ['up', 'rise', 'gain', 'profit', 'growth', 'positive', 
-                      'increase', 'higher', 'bull', 'bullish', 'opportunity']
     
-    negative_words = ['down', 'fall', 'loss', 'decline', 'negative', 'decrease',
-                     'lower', 'bear', 'bearish', 'risk', 'concern']
+    if not text:
+        return 0.0
     
-    pos_count = sum(1 for word in text.split() if word in positive_words)
-    neg_count = sum(1 for word in text.split() if word in negative_words)
-    
-    total_count = pos_count + neg_count
-    
-    if total_count == 0:
-        return 0
-    
-    return (pos_count - neg_count) / total_count
+    try:
+        analysis = TextBlob(text)
+        
+        return analysis.sentiment.polarity
+    except ImportError:
+        positive_words = ['up', 'rise', 'gain', 'profit', 'growth', 'positive', 
+                        'increase', 'higher', 'bull', 'bullish', 'opportunity']
+        
+        negative_words = ['down', 'fall', 'loss', 'decline', 'negative', 'decrease',
+                        'lower', 'bear', 'bearish', 'risk', 'concern']
+        
+        pos_count = sum(1 for word in text.split() if word in positive_words)
+        neg_count = sum(1 for word in text.split() if word in negative_words)
+        
+        total_count = pos_count + neg_count
+        
+        if total_count == 0:
+            return 0
+        
+        return (pos_count - neg_count) / total_count
 
 def clean_news_data(file_path, output_path = None):
     print(f"Cleaning news data from {file_path}")
@@ -116,7 +171,7 @@ def clean_news_data(file_path, output_path = None):
                 # Format: 2023-01-01T12:00:00Z
                 date = datetime.strptime(date_str.split('T')[0], '%Y-%m-%d').strftime('%Y-%m-%d')
             else:
-                date = datetime.strptime(date.str, '%Y-%m-%d').strftime('%Y-%m-%d')
+                date = datetime.strptime(date_str, '%Y-%m-%d').strftime('%Y-%m-%d')
         except (ValueError, TypeError):
             continue
         

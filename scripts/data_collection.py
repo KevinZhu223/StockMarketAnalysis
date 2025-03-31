@@ -7,8 +7,9 @@ import pandas as pd
 import json
 from dotenv import load_dotenv
 import numpy as np
-
-
+from bs4 import BeautifulSoup
+import requests
+import time
 
 def collect_stock_data(ticker, start_date, end_date, save_path = None):
     print(f"Collecting stock data for {ticker} from {start_date} to {end_date}")
@@ -155,6 +156,111 @@ if __name__ == "__main__":
     print(f"Using API Key: {news_api_key[:5]}*****")  # Hide most of the key for security
     collect_data_for_tickers(tickers, start_date, end_date, news_api_key)
 
+def collect_finviz_news(ticker, save_path = None):
+    print(f"Collecting Finviz news for {ticker}")
+
+    headers = {
+         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
+    
+    url = f"https://finviz.com/quote.ashx?t={ticker}"
+    
+    try:
+        response = requests.get(url, headers = headers)
+        if response.status_code != 200:
+            print(f"Failed to retrieve Finviz page: Status code {response.status_code}")
+            return []
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        #find news table
+        news_table = soup.find('table', class_= 'fullview-news-outer')
+        
+        if not news_table:
+            print("No news table found")
+            return []
+        
+        rows = news_table.find_all('tr')
+        
+        articles = []
+        for row in rows:
+            try:
+                date_td = row.find('td', class_='fullview-news-td')
+                title_td = row.find('td', class_='fullview-news-td', align='left')
+                
+                if date_td and title_td:
+                    date_text = date_td.text.strip()
+                    title = title_td.text.strip()
+                    link = title_td.a['href']
+                    source = title_td.span.text.strip()
+                    
+                    #Parse date
+                    today = datetime.now().date()
+                    if "Today" in date_text:
+                        pub_date = datetime.now()
+                    elif date_text.startswith("Yesterday"):
+                        pub_date = datetime.now() - timedelta(days=1)
+                    else:
+                        try:
+                            date_parts = date_text.split('-')
+                            month = date_parts[0]
+                            day = int(date_parts[1])
+                            year = int("20" + date_parts[2])
+                            pub_date = datetime(year, datetime.strptime(month, "%b").month, day)
+                        except Exception as date_error:
+                            print(f"Error parsing date '{date_text}': {str(date_error)}")
+                            pub_date = datetime.now()
+                    article = {
+                         "title": title,
+                           "description": title,
+                           "content": title,  # Finviz doesn't provide content
+                           "publishedAt": pub_date.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                           "source": {"name": source},
+                           "url": link,
+                           "ticker": ticker
+                    }
+                    
+                    articles.append(article)
+            except Exception as e:
+                print(f"Error parsing Finviz news item: {str(e)}")
+        
+        if save_path:
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            with open(save_path, 'w') as f:
+                   json.dump(articles, f)
+            print(f"Saved {len(articles)} Finviz news items to {save_path}")
+
+        return articles
+    except Exception as e:
+        print(f"Error scraping Finviz news: {str(e)}")
+        return []
+    
+def collect_news_with_fallback(ticker, start_date, end_date, api_key=None, save_path=None):
+       """Try to collect news from Finviz, fall back to mock data if it fails."""
+       print(f"Collecting news for {ticker} with fallback")
+       
+       # Try Finviz first
+       try:
+           articles = collect_finviz_news(ticker, save_path=None)  # Don't save yet
+           
+           if articles and len(articles) >= 3:  # Consider successful if we get at least 3 articles
+               print(f"Successfully collected {len(articles)} articles from Finviz")
+               
+               # Save if needed
+               if save_path:
+                   os.makedirs(os.path.dirname(save_path), exist_ok=True)
+                   with open(save_path, 'w') as f:
+                       json.dump(articles, f)
+                   print(f"Saved Finviz news to {save_path}")
+                   
+               return articles
+       except Exception as e:
+           print(f"Finviz collection failed: {str(e)}")
+       
+       # If we get here, Finviz failed, use mock data
+       print("Falling back to mock news data")
+       return generate_mock_news_data(ticker, start_date, end_date, save_path)
+   
 #Use for testing to bypass API limits, simulated testing
 def generate_mock_news_data(ticker, start_date, end_date, save_path = None):
     print(f"Generating mock news data for {ticker} from {start_date} to {end_date}")

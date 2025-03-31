@@ -11,3 +11,5 @@ textblob==0.17.1
 python-dotenv==1.0.0
 tqdm==4.65.0
 python-dotenv
+beautifulsoup4 
+requests

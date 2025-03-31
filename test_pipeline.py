@@ -1,7 +1,7 @@
 # Create a test script (test_pipeline.py)
 import os
 from dotenv import load_dotenv
-from scripts.data_collection import collect_stock_data, collect_news_data, generate_mock_news_data
+from scripts.data_collection import collect_stock_data, collect_news_data, generate_mock_news_data,  collect_news_with_fallback
 from scripts.data_cleaning import clean_stock_data, clean_news_data
 import pandas as pd
 
@@ -27,8 +27,8 @@ news_path = f"data/test/raw/{test_ticker}_news.json"
 
 collect_stock_data(test_ticker, test_start_date, test_end_date, save_path=stock_path)
 #collect_news_data(test_ticker, test_start_date, test_end_date, news_api_key, save_path=news_path)
-generate_mock_news_data(test_ticker, test_start_date, test_end_date, save_path=news_path)
-
+#generate_mock_news_data(test_ticker, test_start_date, test_end_date, save_path=news_path)
+collect_news_with_fallback(test_ticker, test_start_date, test_end_date, save_path=news_path)
 
 # Test data cleaning
 print("Testing data cleaning...")

@@ -1,0 +1,12 @@
+Real-time Analysis for AAPL
+Generated on: 2025-04-01 01:54:01
+Period: Last 5 days
+
+Price Statistics:
+Current Price: $222.13
+Price Change: -0.77%
+
+Sentiment Statistics:
+Current Sentiment: 0.0000
+Average Sentiment: 0.1208
+Price-Sentiment Correlation: -0.8854

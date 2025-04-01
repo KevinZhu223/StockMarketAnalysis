@@ -10,6 +10,8 @@ import numpy as np
 from bs4 import BeautifulSoup
 import requests
 import time
+import random
+import re
 
 def collect_stock_data(ticker, start_date, end_date, save_path = None):
     print(f"Collecting stock data for {ticker} from {start_date} to {end_date}")
@@ -52,7 +54,8 @@ def collect_stock_data(ticker, start_date, end_date, save_path = None):
             print(f"Saved mock stock data to {save_path}")
 
         return data
-
+#Commenting this out
+#news source not working since it doesn't allow for past news
 def collect_news_data(ticker, start_date, end_date, api_key, save_path = None):
     print(f"Collecting news data for {ticker} from {start_date} to {end_date}")
     
@@ -156,85 +159,223 @@ if __name__ == "__main__":
     print(f"Using API Key: {news_api_key[:5]}*****")  # Hide most of the key for security
     collect_data_for_tickers(tickers, start_date, end_date, news_api_key)
 
-def collect_finviz_news(ticker, save_path = None):
+def collect_finviz_news(ticker, save_path=None, max_retries=3, delay=2):
     print(f"Collecting Finviz news for {ticker}")
 
+    # Using multiple user agents to avoid being blocked
+    user_agents = [  # Changed to list instead of set
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Safari/605.1.15",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0"
+    ]
+    
+    # Set up headers to mimic a real browser
     headers = {
-         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        "User-Agent": random.choice(user_agents),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Referer": "https://finviz.com/",
+        "Connection": "keep-alive"
     }
     
     url = f"https://finviz.com/quote.ashx?t={ticker}"
+    articles = []
+    
+    for attempt in range(max_retries):
+        try:
+            print(f"Attempt {attempt + 1}/{max_retries} to fetch Finviz news")  # Fixed variable name
+            
+            time.sleep(delay + random.uniform(0, 1))
+            
+            response = requests.get(url, headers=headers, timeout=10)
+            
+            print(f"Response status code: {response.status_code}")
+            
+            if response.status_code == 403:
+                print("Access forbidden.")
+                headers["User-Agent"] = random.choice(user_agents)
+                continue
+            if response.status_code != 200:
+                print(f"Failed to retrieve Finviz page: Status code {response.status_code}")
+                continue
+            
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Save HTML for debugging
+            debug_file = f"finviz_{ticker}_debug.html"
+            with open(debug_file, "w", encoding="utf-8") as f:
+                f.write(response.text)
+            print(f"Saved HTML to {debug_file} for debugging")
+            
+            # Find news table - more flexible approach
+            news_table = soup.find('table', class_='fullview-news-outer')
+            
+            if not news_table:
+                print("No table with class 'fullview-news-outer' found. Trying alternative selectors...")
+                
+                # Try to find table by content pattern
+                for table in soup.find_all('table'):
+                    # Check if this looks like a news table
+                    if table.find_all('a') and table.find_all('td'):
+                        news_table = table
+                        print("Found potential news table using alternative detection")
+                        break
+                
+                if not news_table:
+                    print("Could not find any table that looks like a news table")
+                    continue
+            
+            rows = news_table.find_all('tr')
+            print(f"Found {len(rows)} news rows")
+            
+            # Analyze first few rows to understand structure
+            print("Analyzing row structure:")
+            for i, row in enumerate(rows[:3]):  # Look at first 3 rows
+                print(f"Row {i} structure:")
+                for j, td in enumerate(row.find_all('td')):
+                    print(f"  TD {j}: class='{td.get('class')}', align='{td.get('align')}', content: '{td.text.strip()[:30]}...'")
+            
+            # Process rows
+            success_count = 0
+            error_count = 0
+            
+            for row_idx, row in enumerate(rows):
+                try:
+                    # More flexible TD selection
+                    all_tds = row.find_all('td')
+                    
+                    # Check if this row has at least 2 cells
+                    if len(all_tds) >= 2:
+                        # First cell usually contains the date
+                        date_td = all_tds[0]
+                        # Second cell usually contains the title
+                        title_td = all_tds[1]
+                        
+                        date_text = date_td.text.strip()
+                        title = title_td.text.strip()
+                        
+                        # Print what we found
+                        print(f"Row {row_idx}: Found date '{date_text}' and title '{title[:30]}...'")
+                        
+                        # Extract link and source
+                        link = title_td.a['href'] if title_td.a and 'href' in title_td.a.attrs else ""
+                        source = title_td.span.text.strip() if title_td.span else "Unknown"
+                        
+                        pub_date = parse_finviz_date(date_text)
+                        
+                        article = {
+                            "title": title,
+                            "description": title,  # Finviz doesn't provide descriptions
+                            "content": title,      # Use title as content
+                            "publishedAt": pub_date.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                            "source": {"name": source},
+                            "url": link,
+                            "ticker": ticker
+                        }
+                        
+                        articles.append(article)
+                        success_count += 1
+                    else:
+                        print(f"Row {row_idx}: Insufficient cells (found {len(all_tds)}, need at least 2)")
+                        
+                except Exception as e:
+                    print(f"Error parsing row {row_idx}: {str(e)}")
+                    error_count += 1
+            
+            print(f"Processed {len(rows)} rows: {success_count} successful, {error_count} errors")
+            
+            if articles:
+                print(f"Successfully collected {len(articles)} articles from Finviz")
+                break
+            else:
+                print("No articles were successfully extracted despite finding rows")
+                
+        except Exception as e:
+            print(f"Error scraping Finviz news (attempt {attempt+1}): {str(e)}")
+            import traceback
+            traceback.print_exc()  # Print full traceback for better debugging
+            
+            if attempt < max_retries - 1:
+                print(f"Retrying in {delay} seconds...")
+                time.sleep(delay)
+    
+    # Save collected articles
+    if save_path and articles:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        with open(save_path, 'w') as f:
+            json.dump(articles, f)
+        print(f"Saved {len(articles)} Finviz news items to {save_path}")
+    else:
+        print(f"No articles to save or no save path provided")
+
+    return articles
+
+def parse_finviz_date(date_text):
+    """Parse Finviz date formats correctly."""
+    today = datetime.now()
+    
+    if "Today" in date_text:
+        # Extract time if available (format like "Today 03:58PM")
+        time_part = date_text.replace("Today", "").strip()
+        return datetime.combine(today.date(), parse_time(time_part))
+    
+    elif "Yesterday" in date_text:
+        # Extract time if available
+        time_part = date_text.replace("Yesterday", "").strip()
+        yesterday = today - timedelta(days=1)
+        return datetime.combine(yesterday.date(), parse_time(time_part))
+    
+    elif re.match(r"^\d{2}:\d{2}(AM|PM)$", date_text):
+        # Just time (like "03:15PM") - assume it's today
+        return datetime.combine(today.date(), parse_time(date_text))
+    
+    elif re.match(r"^[A-Za-z]{3}-\d{1,2}-\d{2}(\s\d{2}:\d{2}(AM|PM))?$", date_text):
+        # Format like "Mar-30-25" or "Mar-30-25 09:59PM"
+        date_parts = date_text.split()
+        date_only = date_parts[0]
+        
+        month, day, year = date_only.split('-')
+        year = int("20" + year)
+        month_num = datetime.strptime(month, "%b").month
+        day = int(day)
+        
+        date_obj = datetime(year, month_num, day)
+        
+        # If time part exists
+        if len(date_parts) > 1:
+            time_obj = parse_time(date_parts[1])
+            return datetime.combine(date_obj.date(), time_obj)
+        else:
+            return date_obj
+    
+    # Default to current date if can't parse
+    return today
+
+def parse_time(time_text):
+    """Parse time string like '03:58PM' to time object."""
+    if not time_text:
+        return datetime.now().time()
     
     try:
-        response = requests.get(url, headers = headers)
-        if response.status_code != 200:
-            print(f"Failed to retrieve Finviz page: Status code {response.status_code}")
-            return []
-        
-        soup = BeautifulSoup(response.text, 'html.parser')
-        
-        #find news table
-        news_table = soup.find('table', class_= 'fullview-news-outer')
-        
-        if not news_table:
-            print("No news table found")
-            return []
-        
-        rows = news_table.find_all('tr')
-        
-        articles = []
-        for row in rows:
-            try:
-                date_td = row.find('td', class_='fullview-news-td')
-                title_td = row.find('td', class_='fullview-news-td', align='left')
-                
-                if date_td and title_td:
-                    date_text = date_td.text.strip()
-                    title = title_td.text.strip()
-                    link = title_td.a['href']
-                    source = title_td.span.text.strip()
-                    
-                    #Parse date
-                    today = datetime.now().date()
-                    if "Today" in date_text:
-                        pub_date = datetime.now()
-                    elif date_text.startswith("Yesterday"):
-                        pub_date = datetime.now() - timedelta(days=1)
-                    else:
-                        try:
-                            date_parts = date_text.split('-')
-                            month = date_parts[0]
-                            day = int(date_parts[1])
-                            year = int("20" + date_parts[2])
-                            pub_date = datetime(year, datetime.strptime(month, "%b").month, day)
-                        except Exception as date_error:
-                            print(f"Error parsing date '{date_text}': {str(date_error)}")
-                            pub_date = datetime.now()
-                    article = {
-                         "title": title,
-                           "description": title,
-                           "content": title,  # Finviz doesn't provide content
-                           "publishedAt": pub_date.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                           "source": {"name": source},
-                           "url": link,
-                           "ticker": ticker
-                    }
-                    
-                    articles.append(article)
-            except Exception as e:
-                print(f"Error parsing Finviz news item: {str(e)}")
-        
-        if save_path:
-            os.makedirs(os.path.dirname(save_path), exist_ok=True)
-            with open(save_path, 'w') as f:
-                   json.dump(articles, f)
-            print(f"Saved {len(articles)} Finviz news items to {save_path}")
-
-        return articles
-    except Exception as e:
-        print(f"Error scraping Finviz news: {str(e)}")
-        return []
+        # Remove any non-time characters
+        time_text = re.sub(r'[^0-9:APM]', '', time_text)
+        return datetime.strptime(time_text, "%I:%M%p").time()
+    except ValueError:
+        return datetime.now().time()
     
+def collect_recent_data(ticker, days_back = 5):
+    end_date = datetime.now().strftime('%Y-%m-%d')
+    start_date = (datetime.now() - timedelta(days=days_back)).strftime('%Y-%m-%d')
+    
+    print(f"Collecting recent data for {ticker} from {start_date} to {end_date}")
+    
+    stock_path = f"data/realtime/{ticker}_stock_recent.csv"
+    stock_data = collect_stock_data(ticker, start_date, end_date, save_path = stock_path)
+    
+    news_path = f"data/realtime/{ticker}_news_recent.json"
+    news_data = collect_finviz_news(ticker, save_path=news_path)
+    
+    return stock_data, news_data, stock_path, news_path
+
 def collect_news_with_fallback(ticker, start_date, end_date, api_key=None, save_path=None):
        """Try to collect news from Finviz, fall back to mock data if it fails."""
        print(f"Collecting news for {ticker} with fallback")

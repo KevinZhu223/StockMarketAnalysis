@@ -12,13 +12,13 @@ test_ticker = 'AAPL'
 # Define paths
 stock_path = f"data/test/processed/{test_ticker}_stock_clean.csv"
 sentiment_path = f"data/test/processed/{test_ticker}_news_clean.csv"
-output_path = f"data/test/final/{test_ticker}_features.csv"
+output_path = f"data/test/final/{test_ticker}_features_realtime.csv"
 
 # Create output directory
 os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
 # Process features
-print(f"Testing feature engineering for {test_ticker}...")
+print(f"Testing real-time feature engineering for {test_ticker}...")
 features_df = process_features(test_ticker, stock_path, sentiment_path, output_path)
 
 # Verify results

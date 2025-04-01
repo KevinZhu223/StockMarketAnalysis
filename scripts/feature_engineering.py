@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 from datetime import datetime, timedelta
+import re
 
 def add_tech_indicators(df):
     df_tech = df.copy()
@@ -22,13 +23,24 @@ def add_tech_indicators(df):
     
     print(f"Calculating tech indicators using {price_col} as price column")
     
-    #Moving Averages
-    windows = [5,10,20,50]
+    # Adjust window sizes based on data length
+    data_length = len(df_tech)
+    
+    # Moving Averages - adapt to shorter periods if needed
+    windows = [min(5, data_length-1), 
+               min(10, data_length-1)]
+    
+    # Only add longer windows if we have enough data
+    if data_length > 20:
+        windows.append(20)
+    if data_length > 50:
+        windows.append(50)
+    
     for window in windows:
-        df_tech[f'SMA_{window}'] = df_tech[price_col].rolling(window = window).mean()
-        
-        #SMA Ratio (price relative to SMA)
-        df_tech[f'SMA_{window}_Ratio'] = df_tech[price_col] / df_tech[f'SMA_{window}']
+        if window > 0:  # Ensure window is positive
+            df_tech[f'SMA_{window}'] = df_tech[price_col].rolling(window=window).mean()
+            df_tech[f'SMA_{window}_Ratio'] = df_tech[price_col] / df_tech[f'SMA_{window}']
+    
         
     #Exponential Moving Averages
     for window in [12,26]:

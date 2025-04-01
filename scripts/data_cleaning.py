@@ -3,7 +3,7 @@ import json
 import pandas as pd
 import numpy as np
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -52,7 +52,7 @@ def clean_stock_data(file_path, output_path = None, ticker = None):
         
         if ticker and all(col.startswith(ticker) or col.startswith(f"{ticker}.") for col in df.columns[:6]):
             print(f"Detected ticker-based column names. Starardizing...")
-            financial_cols = ['Adj Close', 'Close', 'High', 'Low', 'Open', 'Volumn']
+            financial_cols = ['Adj Close', 'Close', 'High', 'Low', 'Open', 'Volume']
             
             #Mapping dict
             rename_dict = {}
@@ -228,13 +228,15 @@ def analyze_sentiment(text):
         
         return (pos_count - neg_count) / total_count
 
-def clean_news_data(file_path, output_path = None):
+def clean_news_data(file_path, output_path = None, days_back = 5):
     print(f"Cleaning news data from {file_path}")
     
     with open(file_path, 'r') as f:
         news_data = json.load(f)
         
     print(f"Loaded {len(news_data)} news articles")
+    
+    cutoff_date = (datetime.now() - timedelta(days=days_back)).date()
     
     processed_articles = []
     
@@ -254,9 +256,14 @@ def clean_news_data(file_path, output_path = None):
             date_str = article.get('publishedAt', '')
             if 'T' in date_str:
                 # Format: 2023-01-01T12:00:00Z
-                date = datetime.strptime(date_str.split('T')[0], '%Y-%m-%d').strftime('%Y-%m-%d')
+                article_date = datetime.strptime(date_str.split('T')[0], '%Y-%m-%d')
+                date = article_date.strftime('%Y-%m-%d')
             else:
-                date = datetime.strptime(date_str, '%Y-%m-%d').strftime('%Y-%m-%d')
+                article_date = datetime.strptime(date_str, '%Y-%m-%d')
+                date = article_date.strftime('%Y-%m-%d')
+             # Skip articles older than our cutoff
+            if article_date.date() < cutoff_date:
+                continue
         except (ValueError, TypeError):
             continue
         
@@ -285,6 +292,9 @@ def clean_news_data(file_path, output_path = None):
     
     #Convert index to datetime
     daily_sentiment.index = pd.to_datetime(daily_sentiment.index)
+    
+    # Sort by date
+    daily_sentiment = daily_sentiment.sort_index()
     
     if output_path:
         os.makedirs(os.path.dirname(output_path), exist_ok= True)

@@ -2,7 +2,7 @@
 import os
 import sys
 import pandas as pd
-from scripts.feature_engineering import process_features
+from scripts.analysis.feature_engineering import process_features
 import matplotlib.pyplot as plt
 import seaborn as sns
 

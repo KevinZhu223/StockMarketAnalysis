@@ -8,9 +8,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Import your modules
-from scripts.data_collection import collect_recent_data
-from scripts.data_cleaning import clean_stock_data, clean_news_data
-from scripts.feature_engineering import process_features
+from scripts.data.data_collectionction import collect_recent_data
+from scripts.data.data_cleaning import clean_stock_data, clean_news_data
+from scripts.analysis.feature_engineering import process_features
 
 def run_realtime_analysis(ticker, days_back=5):
     """

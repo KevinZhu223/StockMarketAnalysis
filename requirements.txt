@@ -13,3 +13,4 @@ tqdm==4.65.0
 python-dotenv
 beautifulsoup4 
 requests
+statsmodels

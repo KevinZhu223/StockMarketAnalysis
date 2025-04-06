@@ -1,0 +1,8 @@
+2025-04-06 04:29:36,189 - INFO - Starting diagnostic script
+2025-04-06 04:29:36,189 - INFO - Testing file operations...
+2025-04-06 04:29:36,190 - INFO - Created text file
+2025-04-06 04:29:36,201 - INFO - Created CSV file
+2025-04-06 04:29:36,471 - INFO - Created plot file
+2025-04-06 04:29:36,471 - INFO - Testing module imports...
+2025-04-06 04:29:38,067 - INFO - Successfully imported add_tech_indicators
+2025-04-06 04:29:38,068 - INFO - Diagnostic script completed

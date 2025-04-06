@@ -1,0 +1,146 @@
+2025-04-06 04:33:57,169 - analysis_test - INFO - Minimal test completed successfully
+2025-04-06 04:33:57,169 - analysis_test - INFO - Testing technical analysis module...
+2025-04-06 04:33:57,691 - analysis_test - INFO - Loaded existing data from data/processed/AAPL_stock_clean.csv
+2025-04-06 04:33:57,691 - analysis_test - INFO - Data shape: (253, 5)
+2025-04-06 04:33:57,692 - analysis_test - INFO - Date range: 2022-01-03 to Ticker
+2025-04-06 04:33:57,692 - analysis_test - INFO - Testing basic technical indicators...
+2025-04-06 04:33:57,693 - analysis_test - ERROR - Error testing basic indicators: No suitable price column
+2025-04-06 04:33:57,695 - analysis_test - INFO - Testing advanced technical indicators...
+2025-04-06 04:33:57,695 - analysis_test - ERROR - Error testing advanced indicators: No suitable price column
+2025-04-06 04:33:57,697 - analysis_test - INFO - Testing candlestick pattern detection...
+2025-04-06 04:33:57,697 - analysis_test - ERROR - Error testing candlestick patterns: unsupported operand type(s) for -: 'str' and 'str'
+2025-04-06 04:33:57,759 - analysis_test - INFO - Technical analysis testing completed
+2025-04-06 04:33:57,759 - analysis_test - INFO - Testing statistical analysis module...
+2025-04-06 04:33:57,762 - analysis_test - INFO - Loaded existing data from data/processed/AAPL_stock_clean.csv
+2025-04-06 04:33:57,762 - analysis_test - INFO - Data shape: (253, 5)
+2025-04-06 04:33:57,762 - analysis_test - INFO - Date range: 2022-01-03 to Ticker
+2025-04-06 04:51:50,085 - analysis_test - INFO - Minimal test completed successfully
+2025-04-06 04:51:50,086 - analysis_test - INFO - Testing technical analysis module...
+2025-04-06 04:51:50,619 - analysis_test - INFO - Loaded existing data from data/processed/AAPL_stock_clean.csv
+2025-04-06 04:51:50,628 - analysis_test - INFO - Data shape: (253, 6)
+2025-04-06 04:51:50,631 - analysis_test - INFO - Date range: 1970-01-01 00:00:00 to 1970-01-01 00:00:00.000000252
+2025-04-06 04:51:50,631 - analysis_test - INFO - Testing basic technical indicators...
+2025-04-06 04:51:50,648 - analysis_test - INFO - Basic indicators added. New shape: (253, 33)
+2025-04-06 04:51:50,649 - analysis_test - INFO - All expected basic indicators were created successfully
+2025-04-06 04:51:50,933 - analysis_test - INFO - Saved visualization of basic indicators
+2025-04-06 04:51:50,934 - analysis_test - INFO - Testing advanced technical indicators...
+2025-04-06 04:51:50,953 - analysis_test - INFO - Advanced indicators added. New shape: (253, 39)
+2025-04-06 04:51:50,954 - analysis_test - INFO - All expected advanced indicators were created successfully
+2025-04-06 04:51:51,201 - analysis_test - INFO - Saved visualization of advanced indicators
+2025-04-06 04:51:51,202 - analysis_test - INFO - Testing candlestick pattern detection...
+2025-04-06 04:51:51,208 - analysis_test - INFO - Candlestick patterns detected. New shape: (253, 14)
+2025-04-06 04:51:51,208 - analysis_test - INFO - All expected candlestick patterns were detected successfully
+2025-04-06 04:51:51,209 - analysis_test - INFO - Pattern occurrences: {'Doji': 10, 'Hammer': 0, 'ShootingStar': 0, 'BullishEngulfing': 7, 'BearishEngulfing': 8}
+2025-04-06 04:51:51,338 - analysis_test - INFO - Saved visualization of candlestick patterns
+2025-04-06 04:51:51,339 - analysis_test - INFO - Technical analysis testing completed
+2025-04-06 04:51:51,339 - analysis_test - INFO - Testing statistical analysis module...
+2025-04-06 04:51:51,352 - analysis_test - INFO - Loaded existing data from data/processed/AAPL_stock_clean.csv
+2025-04-06 04:51:51,359 - analysis_test - INFO - Data shape: (253, 6)
+2025-04-06 04:51:51,359 - analysis_test - INFO - Date range: 1970-01-01 00:00:00 to 1970-01-01 00:00:00.000000252
+2025-04-06 04:51:51,374 - analysis_test - INFO - Testing market efficiency analysis...
+2025-04-06 04:51:51,377 - analysis_test - INFO - Market efficiency test results:
+2025-04-06 04:51:51,378 - analysis_test - INFO -   jarque_bera:
+2025-04-06 04:51:51,378 - analysis_test - INFO -     statistic: 15.522404146217902
+2025-04-06 04:51:51,378 - analysis_test - INFO -     p_value: 0.0004259442566850201
+2025-04-06 04:51:51,378 - analysis_test - INFO -     is_normal: False
+2025-04-06 04:51:51,378 - analysis_test - INFO -   ljung_box:
+2025-04-06 04:51:51,378 - analysis_test - INFO -     statistic: 10.499937107851952
+2025-04-06 04:51:51,378 - analysis_test - INFO -     p_value: 0.39777890441266933
+2025-04-06 04:51:51,378 - analysis_test - INFO -     is_independent: True
+2025-04-06 04:51:51,379 - analysis_test - INFO -   runs_test:
+2025-04-06 04:51:51,379 - analysis_test - INFO -     runs: 123
+2025-04-06 04:51:51,379 - analysis_test - INFO -     expected_runs: 125.04819277108433
+2025-04-06 04:51:51,379 - analysis_test - INFO -     z_statistic: -0.2610741236568256
+2025-04-06 04:51:51,380 - analysis_test - INFO -     p_value: 0.7940353461777403
+2025-04-06 04:51:51,380 - analysis_test - INFO -     is_random: True
+2025-04-06 04:51:51,383 - analysis_test - INFO - Saved market efficiency results
+2025-04-06 04:51:51,383 - analysis_test - INFO - Testing correlation analysis...
+2025-04-06 04:51:51,401 - analysis_test - INFO - Correlation analysis results:
+2025-04-06 04:51:51,402 - analysis_test - INFO -   1_day:
+2025-04-06 04:51:51,402 - analysis_test - INFO -     1. future_return_3d: 0.5382
+2025-04-06 04:51:51,402 - analysis_test - INFO -     2. future_return_5d: 0.4192
+2025-04-06 04:51:51,402 - analysis_test - INFO -     3. BB_Width: 0.1533
+2025-04-06 04:51:51,402 - analysis_test - INFO -     4. Open: -0.1375
+2025-04-06 04:51:51,403 - analysis_test - INFO -     5. High: -0.1345
+2025-04-06 04:51:51,403 - analysis_test - INFO -   3_day:
+2025-04-06 04:51:51,403 - analysis_test - INFO -     1. future_return_5d: 0.7327
+2025-04-06 04:51:51,403 - analysis_test - INFO -     2. future_return_1d: 0.5382
+2025-04-06 04:51:51,403 - analysis_test - INFO -     3. BB_Width: 0.2292
+2025-04-06 04:51:51,403 - analysis_test - INFO -     4. BB_Lower: -0.2226
+2025-04-06 04:51:51,403 - analysis_test - INFO -     5. Close: -0.2066
+2025-04-06 04:51:51,403 - analysis_test - INFO -   5_day:
+2025-04-06 04:51:51,403 - analysis_test - INFO -     1. future_return_3d: 0.7327
+2025-04-06 04:51:51,403 - analysis_test - INFO -     2. future_return_1d: 0.4192
+2025-04-06 04:51:51,404 - analysis_test - INFO -     3. BB_Lower: -0.2988
+2025-04-06 04:51:51,404 - analysis_test - INFO -     4. BB_Width: 0.2837
+2025-04-06 04:51:51,404 - analysis_test - INFO -     5. SMA_20: -0.2530
+2025-04-06 04:51:51,817 - analysis_test - INFO - Saved correlation heatmap
+2025-04-06 04:51:51,818 - analysis_test - INFO - Testing risk analysis...
+2025-04-06 04:51:51,820 - analysis_test - INFO - Risk analysis results:
+2025-04-06 04:51:51,821 - analysis_test - INFO -   annualized_return: -0.270522
+2025-04-06 04:51:51,821 - analysis_test - INFO -   annualized_volatility: 0.356721
+2025-04-06 04:51:51,821 - analysis_test - INFO -   sharpe_ratio: -0.758357
+2025-04-06 04:51:51,821 - analysis_test - INFO -   sortino_ratio: -1.258745
+2025-04-06 04:51:51,821 - analysis_test - INFO -   max_drawdown: -0.294538
+2025-04-06 04:51:51,821 - analysis_test - INFO -   var_95: -0.037318
+2025-04-06 04:51:51,822 - analysis_test - INFO -   var_99: -0.053817
+2025-04-06 04:51:51,822 - analysis_test - INFO -   cvar_95: -0.045476
+2025-04-06 04:51:51,822 - analysis_test - INFO -   cvar_99: -0.056938
+2025-04-06 04:51:51,824 - analysis_test - INFO - Saved risk metrics
+2025-04-06 04:51:51,962 - analysis_test - INFO - Saved risk metrics visualization
+2025-04-06 04:51:51,963 - analysis_test - INFO - Statistical analysis testing completed
+2025-04-06 04:51:51,963 - analysis_test - INFO - Testing trading strategies module...
+2025-04-06 04:51:51,976 - analysis_test - INFO - Loaded existing data from data/processed/AAPL_stock_clean.csv
+2025-04-06 04:51:51,983 - analysis_test - INFO - Data shape: (253, 6)
+2025-04-06 04:51:51,983 - analysis_test - INFO - Date range: 1970-01-01 00:00:00 to 1970-01-01 00:00:00.000000252
+2025-04-06 04:51:51,996 - analysis_test - INFO - Testing strategy definition...
+2025-04-06 04:51:51,997 - analysis_test - INFO - Defined 5 strategies:
+2025-04-06 04:51:51,998 - analysis_test - INFO -   MA_Crossover: Buy when 20-day SMA crosses above 50-day SMA, sell when it crosses below
+2025-04-06 04:51:51,998 - analysis_test - INFO -   RSI: Buy when RSI goes below 30 (oversold) or crosses back above 30, sell when RSI goes above 70
+2025-04-06 04:51:51,998 - analysis_test - INFO -   MACD: Buy when MACD crosses above signal line, sell when it crosses below
+2025-04-06 04:51:51,998 - analysis_test - INFO -   Bollinger: Buy when price touches lower Bollinger Band, sell when it touches upper band
+2025-04-06 04:51:51,998 - analysis_test - INFO -   RSI_MACD_Combined: Buy when RSI is below 40 AND MACD is above signal line
+2025-04-06 04:51:52,003 - analysis_test - INFO - Saved strategy signals
+2025-04-06 04:51:52,226 - analysis_test - INFO - Saved strategy signals visualization
+2025-04-06 04:51:52,226 - analysis_test - INFO - Testing strategy backtesting...
+2025-04-06 04:51:52,227 - analysis_test - INFO - Backtesting MA_Crossover strategy...
+2025-04-06 04:51:52,232 - analysis_test - INFO -   Total Return: -21.61%
+2025-04-06 04:51:52,232 - analysis_test - INFO -   Sharpe Ratio: -1.2431
+2025-04-06 04:51:52,232 - analysis_test - INFO -   Max Drawdown: -24.66%
+2025-04-06 04:51:52,232 - analysis_test - INFO -   vs. Buy & Hold: +6.59%
+2025-04-06 04:51:52,233 - analysis_test - INFO - Backtesting RSI strategy...
+2025-04-06 04:51:52,238 - analysis_test - INFO -   Total Return: 12.35%
+2025-04-06 04:51:52,238 - analysis_test - INFO -   Sharpe Ratio: 0.7284
+2025-04-06 04:51:52,238 - analysis_test - INFO -   Max Drawdown: -7.80%
+2025-04-06 04:51:52,239 - analysis_test - INFO -   vs. Buy & Hold: +40.55%
+2025-04-06 04:51:52,239 - analysis_test - INFO - Backtesting MACD strategy...
+2025-04-06 04:51:52,244 - analysis_test - INFO -   Total Return: -2.41%
+2025-04-06 04:51:52,245 - analysis_test - INFO -   Sharpe Ratio: -0.1204
+2025-04-06 04:51:52,245 - analysis_test - INFO -   Max Drawdown: -17.18%
+2025-04-06 04:51:52,245 - analysis_test - INFO -   vs. Buy & Hold: +25.79%
+2025-04-06 04:51:52,245 - analysis_test - INFO - Backtesting Bollinger strategy...
+2025-04-06 04:51:52,251 - analysis_test - INFO -   Total Return: -2.38%
+2025-04-06 04:51:52,251 - analysis_test - INFO -   Sharpe Ratio: -0.3083
+2025-04-06 04:51:52,251 - analysis_test - INFO -   Max Drawdown: -3.68%
+2025-04-06 04:51:52,251 - analysis_test - INFO -   vs. Buy & Hold: +25.82%
+2025-04-06 04:51:52,251 - analysis_test - INFO - Backtesting RSI_MACD_Combined strategy...
+2025-04-06 04:51:52,256 - analysis_test - INFO -   Total Return: 4.76%
+2025-04-06 04:51:52,257 - analysis_test - INFO -   Sharpe Ratio: 1.6168
+2025-04-06 04:51:52,257 - analysis_test - INFO -   Max Drawdown: 0.00%
+2025-04-06 04:51:52,257 - analysis_test - INFO -   vs. Buy & Hold: +32.96%
+2025-04-06 04:51:52,262 - analysis_test - INFO - Saved strategy performance comparison
+2025-04-06 04:51:52,502 - analysis_test - INFO - Saved strategy performance visualization
+2025-04-06 04:51:52,502 - analysis_test - INFO - Trading strategies testing completed
+2025-04-06 04:51:52,502 - analysis_test - INFO - Testing machine learning module...
+2025-04-06 04:51:52,513 - analysis_test - INFO - Loaded existing data from data/processed/AAPL_stock_clean.csv
+2025-04-06 04:51:52,529 - analysis_test - INFO - Data shape: (253, 6)
+2025-04-06 04:51:52,529 - analysis_test - INFO - Date range: 1970-01-01 00:00:00 to 1970-01-01 00:00:00.000000252
+2025-04-06 04:51:52,547 - analysis_test - INFO - Testing feature selection...
+2025-04-06 04:51:52,547 - analysis_test - INFO - Selecting features for target_next_day_return...
+2025-04-06 04:51:52,575 - analysis_test - ERROR - Error testing feature selection: Input X contains NaN.
+SelectKBest does not accept missing values encoded as NaN natively. For supervised learning, you might want to consider sklearn.ensemble.HistGradientBoostingClassifier and Regressor which accept missing values encoded as NaNs natively. Alternatively, it is possible to preprocess the data, for instance by using an imputer transformer in a pipeline or drop samples with missing values. See https://scikit-learn.org/stable/modules/impute.html You can find a list of all estimators that handle NaN values at the following page: https://scikit-learn.org/stable/modules/impute.html#estimators-that-handle-nan-values
+2025-04-06 04:51:52,621 - analysis_test - INFO - Testing predictive models...
+2025-04-06 04:51:52,621 - analysis_test - INFO - Building models for target_next_day_return...
+2025-04-06 04:51:52,644 - analysis_test - ERROR - Error testing predictive models: Input X contains NaN.
+LinearRegression does not accept missing values encoded as NaN natively. For supervised learning, you might want to consider sklearn.ensemble.HistGradientBoostingClassifier and Regressor which accept missing values encoded as NaNs natively. Alternatively, it is possible to preprocess the data, for instance by using an imputer transformer in a pipeline or drop samples with missing values. See https://scikit-learn.org/stable/modules/impute.html You can find a list of all estimators that handle NaN values at the following page: https://scikit-learn.org/stable/modules/impute.html#estimators-that-handle-nan-values
+2025-04-06 04:51:52,657 - analysis_test - INFO - Machine learning testing completed

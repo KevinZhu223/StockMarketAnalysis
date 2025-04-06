@@ -1,7 +1,7 @@
 # test_pipeline.py
 import os
 from dotenv import load_dotenv
-from scripts.data.data_collectionction import collect_recent_data
+from scripts.data.data_collection import collect_recent_data
 from scripts.data.data_cleaning import clean_stock_data, clean_news_data
 import pandas as pd
 

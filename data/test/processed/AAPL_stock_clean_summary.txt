@@ -2,7 +2,7 @@ Data Cleaning Summary for AAPL
 Original columns: ['Adj Close', 'Close', 'High', 'Low', 'Open', 'Volume', 'Daily_Return', 'Return_Outlier']
 Standardized columns: ['Adj Close', 'Close', 'High', 'Low', 'Open', 'Volume', 'Daily_Return', 'Return_Outlier']
 Price column used: Adj Close
-Data shape: (3, 8)
-Date range: 2025-03-27 00:00:00 to 2025-03-31 00:00:00
+Data shape: (4, 8)
+Date range: 2025-04-01 00:00:00 to 2025-04-04 00:00:00
 Missing values before cleaning: 6
 Outliers detected: 0

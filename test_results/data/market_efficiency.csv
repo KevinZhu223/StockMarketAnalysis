@@ -1,0 +1,4 @@
+Test,Statistic,p-value,Interpretation
+jarque_bera,15.522404146217902,0.0004259442566850201,Not Normal
+ljung_box,10.499937107851952,0.39777890441266933,Independent
+runs_test,N/A,0.7940353461777403,Random
